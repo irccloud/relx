@@ -84,8 +84,6 @@ Options
 |       | --sys_config     | string  |  | Path to a file to use for sys.config |
 | -d    | --dev-mode     | boolean | false | Symlink all applications and configuration into the release instead of copying|
 | -i    | --include-erts | boolean/string | true | If true include a copy of erts used to build with, if a path include erts at that path. If false, do not include erts |
-| -m    | --code-loading-mode | string | embedded | Set the -mode flag
-to either embedded (default) or interactive |
 
 Wiki
 ----
