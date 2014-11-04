@@ -251,10 +251,11 @@ write_bin_file(State, Release, OutputDir, RelDir) ->
     VsnRel = filename:join(BinDir, rlx_release:canonical_name(Release)),
     BareRel = filename:join(BinDir, RelName),
     ErlOpts = rlx_state:get(State, erl_opts, ""),
+    CodeLoadingMode = rlx_state:get(State, code_loading_mode, "embedded"),
     {OsFamily, _OsName} = os:type(),
     StartFile = case rlx_state:get(State, extended_start_script, false) of
                     false ->
-                        bin_file_contents(OsFamily, RelName, RelVsn,
+                        bin_file_contents(OsFamily, RelName, RelVsn, CodeLoadingMode,
                                           rlx_release:erts(Release),
                                           ErlOpts);
                     true ->
@@ -275,7 +276,7 @@ write_bin_file(State, Release, OutputDir, RelDir) ->
                             false ->
                                 ok
                         end,
-                        extended_bin_file_contents(OsFamily, RelName, RelVsn, rlx_release:erts(Release), ErlOpts)
+                        extended_bin_file_contents(OsFamily, RelName, RelVsn, CodeLoadingMode, rlx_release:erts(Release), ErlOpts)
                 end,
     %% We generate the start script by default, unless the user
     %% tells us not too
@@ -478,21 +479,23 @@ ensure_not_exist(RelConfPath) ->
 erl_script(ErtsVsn) ->
     render(erl_script_dtl, [{erts_vsn, ErtsVsn}]).
 
-bin_file_contents(OsFamily, RelName, RelVsn, ErtsVsn, ErlOpts) ->
+bin_file_contents(OsFamily, RelName, RelVsn, CodeLoadingMode, ErtsVsn, ErlOpts) ->
     Template = case OsFamily of
         unix -> bin_dtl;
         win32 -> bin_windows_dtl
     end,
     render(Template, [{rel_name, RelName}, {rel_vsn, RelVsn},
-                      {erts_vsn, ErtsVsn}, {erl_opts, ErlOpts}]).
+                      {erts_vsn, ErtsVsn}, {erl_opts, ErlOpts},
+                      {code_loading_mode, CodeLoadingMode}]).
 
-extended_bin_file_contents(OsFamily, RelName, RelVsn, ErtsVsn, ErlOpts) ->
+extended_bin_file_contents(OsFamily, RelName, RelVsn, CodeLoadingMode, ErtsVsn, ErlOpts) ->
     Template = case OsFamily of
         unix -> extended_bin_dtl;
         win32 -> extended_bin_windows_dtl
     end,
     render(Template, [{rel_name, RelName}, {rel_vsn, RelVsn},
-                      {erts_vsn, ErtsVsn}, {erl_opts, ErlOpts}]).
+                      {erts_vsn, ErtsVsn}, {erl_opts, ErlOpts},
+                      {code_loading_mode, CodeLoadingMode}]).
 
 erl_ini(OutputDir, ErtsVsn) ->
     ErtsDirName = string:concat("erts-", ErtsVsn),
